@@ -1,14 +1,10 @@
-from requests import get
 from lxml.cssselect import CSSSelector
 from lxml import html
 from slugify import slugify
 import base64
 import os
-
-def download(url, file_name):
-    with open(file_name, "wb") as file:
-        response = get(url)
-        file.write(response.content)
+import index
+import utils
 
 def has_next(file_name):
     with open(file_name, "r") as file:
@@ -18,46 +14,13 @@ def has_next(file_name):
             return False
     return True
 
-def check_file(file_name):
-    try:
-        with open(file_name, "r") as file:
-            doc = html.fromstring("".join(file.readlines()))
-        return len(doc.cssselect(".SearchResults-documents")) > 0
-    except:
-        return False
-
-def generate_output_file_name(url, base_output_path):
-    path = "/".join(url.split("/")[3:])
-    slug = slugify(path)
-    base = base64.urlsafe_b64encode(bytes(slug, "utf-8")).decode("utf-8")
-    folder = base.replace("=", "")[-2:].lower()
-    return os.path.join(base_output_path, folder, slug)
-
-def prepare_output_folder(output_file):
-    folder = os.path.dirname(output_file)
-    if not os.path.exists(folder):
-        os.makedirs(os.path.dirname(output_file))
-
-def download_if_necessary(input_url, output_file, retry=0, sleep=5):
-    if retry >= 3:
-        print(f"Could not correctly download {output_file}")
-        return
-    if not os.path.exists(output_file) or not check_file(output_file):
-        print(f"Downloading to {output_file}, retry={retry}")
-        prepare_output_folder(output_file)
-        download(input_url, output_file)
-        if not check_file(output_file):
-            download_if_necessary(input_url, output_file, retry+1)
-    else:
-        print(f"File {output_file} already exists")
-
 def download_all_from_base_url(base_url, base_output):
     for i in range(1000):
         page = i+1
         input_url = "%s&p=%d" % (base_url, page)
-        output_file = generate_output_file_name(input_url, base_output)
-        download_if_necessary(input_url, output_file)
-        if not check_file(output_file):
+        output_file = utils.generate_output_file_name(input_url, base_output)
+        utils.download_if_necessary(input_url, output_file, index.check_file)
+        if not index.check_file(output_file):
             print(f"Stopping pages from {base_url}")
             return
         if not has_next(output_file):
@@ -82,4 +45,4 @@ def download_all(output):
         base_url = BASE_URL % topic
         download_all_from_base_url(base_url, output)
 
-download_all("/home/tiago.motta/Documents/jusbrasil")
+download_all("/home/tiago.motta/Documents/jusbrasil/indexes")
