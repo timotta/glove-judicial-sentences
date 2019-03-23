@@ -3,6 +3,18 @@ import os
 import base64
 from slugify import slugify
 
+def chunks(l, n):
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
+
+def list_files(base_folder):
+    result = []
+    for root, _, files in os.walk(base_folder):
+        for filename in files:
+            file_path = os.path.join(root, filename)
+            result.append(file_path)
+    return result
+
 def download(url, file_name):
     with open(file_name, "wb") as file:
         response = get(url)
@@ -22,10 +34,10 @@ def prepare_output_folder(output_file):
 
 def download_if_necessary(input_url, output_file, check, retry=0, sleep=5):
     if retry >= 3:
-        print(f"Could not correctly download {output_file}")
+        print(f"Could not correctly download {input_url}")
         return
     if not os.path.exists(output_file) or not check(output_file):
-        print(f"Downloading to {output_file}, retry={retry}")
+        #print(f"Downloading {output_file}, retry={retry}")
         prepare_output_folder(output_file)
         download(input_url, output_file)
         if not check(output_file):

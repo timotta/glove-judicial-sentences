@@ -3,6 +3,9 @@ from lxml.cssselect import CSSSelector
 from lxml import html
 import utils
 import index
+from multiprocessing import Pool
+import functools
+from random import shuffle
 
 def list_indexes_files(base_folder):
     result = []
@@ -13,12 +16,7 @@ def list_indexes_files(base_folder):
     return result
 
 def fix_sentence_link(url):
-    only_until_path = "https:" + url.split("?")[0].split("#")[0]
-    if "inteiro-teor" in only_until_path:
-        return "-".join(only_until_path.split("-")[:-1])
-    else:
-        return only_until_path + "/inteiro-teor"
-    return only_until_path
+    return "https:" + url.split("?")[0].split("#")[0]
 
 def get_sentence_links(index_file_path):
     with open(index_file_path, "r") as file:
@@ -38,6 +36,7 @@ def check_file(file_name):
         return False
 
 def download_all_from_index(index_file, base_output):
+    print(f"Downloading sentences from index {index_file}")
     if index.check_file(index_file):
         for input_url in get_sentence_links(index_file):
             output_file = utils.generate_output_file_name(input_url, base_output)
@@ -46,10 +45,17 @@ def download_all_from_index(index_file, base_output):
                 print(f"Download failed for {input_url}")
                 return
 
-def download_all(indexes_base_folder, output_path):
-    for index_file in list_indexes_files(indexes_base_folder):
-        print(f"index: {index_file}")
-        download_all_from_index(index_file, output_path)
+def download_all(indexes_base_folder, output_path, processes=6):
+    pool = Pool(processes)
+    indexes = list_indexes_files(indexes_base_folder)
+    shuffle(indexes)
+
+    chunks_indexes = utils.chunks(indexes, processes)
+
+    download = functools.partial(download_all_from_index, base_output=output_path)
+
+    for chunk in chunks_indexes:
+        pool.map(download, chunk)
 
 download_all(
     "/home/tiago.motta/Documents/jusbrasil/indexes",
