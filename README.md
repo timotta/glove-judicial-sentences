@@ -25,6 +25,7 @@ Notebooks:
 
 ## Ideas to improve
 
+- Transform any money reference in a word instead of removing it
 - Generate using as each sample one entire object instead of a single phrase
 - Compare quality with word2vect
 
