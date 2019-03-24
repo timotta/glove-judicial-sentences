@@ -1,5 +1,4 @@
 # GloVe Judicial Sentences
-==========================
 
 This project uses GloVe ( http://www-nlp.stanford.edu/projects/glove/ ) to generate word embeddings for brazilian portuguese judicial sentence based on Jusbrasil website ( https://www.jusbrasil.com.br ). I have used only sentences related to insurance, but you can easily change it by editing the `gjs/download_indexes.py` file.
 
