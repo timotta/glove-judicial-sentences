@@ -45,4 +45,5 @@ def download_all(output):
         base_url = BASE_URL % topic
         download_all_from_base_url(base_url, output)
 
-download_all("/home/tiago.motta/Documents/jusbrasil/indexes")
+if __name__ == "__main__":
+    download_all("data/indexes")

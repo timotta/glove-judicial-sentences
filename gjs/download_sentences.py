@@ -57,7 +57,8 @@ def download_all(indexes_base_folder, output_path, processes=6):
     for chunk in chunks_indexes:
         pool.map(download, chunk)
 
-download_all(
-    "/home/tiago.motta/Documents/jusbrasil/indexes",
-    "/home/tiago.motta/Documents/jusbrasil/sentences"
-)
+if __name__ == "__main__":
+    download_all(
+        "data/indexes",
+        "data/sentences"
+    )
