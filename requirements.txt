@@ -2,3 +2,7 @@ requests
 lxml
 cssselect
 python-slugify
+jupyter
+glove-python
+pandas
+tensorflow
